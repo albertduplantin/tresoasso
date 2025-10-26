@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
@@ -17,9 +17,16 @@ import { useAuthContext } from '@/components/providers/auth-provider';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { signUp, signInWithGoogle } = useAuthContext();
+  const { signUp, signInWithGoogle, isAuthenticated, loading: authLoading } = useAuthContext();
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+
+  // Redirection automatique si déjà authentifié
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      router.push('/onboarding/organization');
+    }
+  }, [isAuthenticated, authLoading, router]);
 
   const {
     register,
@@ -34,7 +41,7 @@ export default function RegisterPage() {
     try {
       await signUp(data.email, data.password, data.displayName);
       toast.success('Compte créé avec succès !');
-      router.push('/onboarding/organization');
+      // La redirection est gérée automatiquement par le useEffect
     } catch (error: any) {
       console.error('Register error:', error);
       toast.error(
@@ -42,7 +49,6 @@ export default function RegisterPage() {
           ? 'Cet email est déjà utilisé'
           : 'Erreur lors de la création du compte'
       );
-    } finally {
       setLoading(false);
     }
   };
@@ -52,11 +58,10 @@ export default function RegisterPage() {
     try {
       await signInWithGoogle();
       toast.success('Compte créé avec succès !');
-      router.push('/onboarding/organization');
+      // La redirection est gérée automatiquement par le useEffect
     } catch (error: any) {
       console.error('Google sign-in error:', error);
       toast.error('Erreur lors de la connexion avec Google');
-    } finally {
       setGoogleLoading(false);
     }
   };

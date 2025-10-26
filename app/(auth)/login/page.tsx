@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
@@ -17,9 +17,16 @@ import { useAuthContext } from '@/components/providers/auth-provider';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { signIn, signInWithGoogle } = useAuthContext();
+  const { signIn, signInWithGoogle, isAuthenticated, loading: authLoading } = useAuthContext();
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+
+  // Redirection automatique si déjà authentifié
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, authLoading, router]);
 
   const {
     register,
@@ -34,7 +41,7 @@ export default function LoginPage() {
     try {
       await signIn(data.email, data.password);
       toast.success('Connexion réussie !');
-      router.push('/dashboard');
+      // La redirection est gérée automatiquement par le useEffect
     } catch (error: any) {
       console.error('Login error:', error);
       toast.error(
@@ -42,7 +49,6 @@ export default function LoginPage() {
           ? 'Email ou mot de passe incorrect'
           : 'Erreur lors de la connexion'
       );
-    } finally {
       setLoading(false);
     }
   };
@@ -52,11 +58,10 @@ export default function LoginPage() {
     try {
       await signInWithGoogle();
       toast.success('Connexion réussie !');
-      router.push('/dashboard');
+      // La redirection est gérée automatiquement par le useEffect
     } catch (error: any) {
       console.error('Google sign-in error:', error);
       toast.error('Erreur lors de la connexion avec Google');
-    } finally {
       setGoogleLoading(false);
     }
   };
