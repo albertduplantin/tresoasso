@@ -6,7 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "setup:firebase": "bash scripts/setup-firebase.sh",
+    "setup:vercel": "bash scripts/setup-vercel.sh",
+    "deploy": "vercel --prod",
+    "deploy:preview": "vercel",
+    "firebase:emulators": "firebase emulators:start",
+    "firebase:deploy": "firebase deploy"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
