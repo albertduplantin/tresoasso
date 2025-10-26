@@ -110,7 +110,7 @@ export default function OrganizationOnboardingPage() {
               organizationId: orgId,
               role: 'admin',
               permissions: ['read', 'write', 'delete', 'manage'],
-              joinedAt: serverTimestamp(),
+              joinedAt: new Date(), // serverTimestamp() ne fonctionne pas dans les arrays
             },
           ],
         },
