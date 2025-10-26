@@ -30,23 +30,39 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
 
   // Récupérer les organisations de l'utilisateur
   const refreshOrganizations = async () => {
-    if (!user) return;
+    // Vérifier que user existe et a un id
+    if (!user || !user.id) {
+      console.log('User not loaded yet or missing id');
+      return;
+    }
 
     try {
+      // TODO: Corriger la requête une fois que la structure de données sera définie
+      // Pour l'instant, utiliser des données mockées
+      console.log('Loading organizations for user:', user.id);
+      
+      // Mock data temporaire
+      const mockOrgs: Organization[] = [];
+      
+      /* Requête réelle à implémenter une fois la structure définie :
       const orgsQuery = query(
         collection(db, 'organizations'),
-        where('members', 'array-contains', { userId: user.id, role: 'owner' })
+        where('ownerId', '==', user.id)
       );
       
       const snapshot = await getDocs(orgsQuery);
-      const orgsData = snapshot.docs.map(doc => doc.data() as Organization);
+      const orgsData = snapshot.docs.map(doc => ({ 
+        id: doc.id, 
+        ...doc.data() 
+      } as Organization));
+      */
       
-      setOrganizations(orgsData);
+      setOrganizations(mockOrgs);
 
       // Si pas d'organisation courante mais qu'il y en a au moins une, sélectionner la première
-      if (!currentOrganization && orgsData.length > 0) {
-        setCurrentOrganizationState(orgsData[0]);
-        localStorage.setItem('currentOrganizationId', orgsData[0].id);
+      if (!currentOrganization && mockOrgs.length > 0) {
+        setCurrentOrganizationState(mockOrgs[0]);
+        localStorage.setItem('currentOrganizationId', mockOrgs[0].id);
       }
     } catch (error) {
       console.error('Error fetching organizations:', error);
@@ -55,23 +71,36 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
 
   // Récupérer les projets de l'organisation courante
   const refreshProjects = async () => {
-    if (!currentOrganization) return;
+    if (!currentOrganization || !currentOrganization.id) {
+      console.log('No organization selected');
+      return;
+    }
 
     try {
+      console.log('Loading projects for organization:', currentOrganization.id);
+      
+      // Mock data temporaire
+      const mockProjects: Project[] = [];
+      
+      /* Requête réelle à implémenter :
       const projectsQuery = query(
         collection(db, 'projects'),
         where('organizationId', '==', currentOrganization.id)
       );
       
       const snapshot = await getDocs(projectsQuery);
-      const projectsData = snapshot.docs.map(doc => doc.data() as Project);
+      const projectsData = snapshot.docs.map(doc => ({ 
+        id: doc.id, 
+        ...doc.data() 
+      } as Project));
+      */
       
-      setProjects(projectsData);
+      setProjects(mockProjects);
 
       // Si pas de projet courant mais qu'il y en a au moins un, sélectionner le premier
-      if (!currentProject && projectsData.length > 0) {
-        setCurrentProjectState(projectsData[0]);
-        localStorage.setItem('currentProjectId', projectsData[0].id);
+      if (!currentProject && mockProjects.length > 0) {
+        setCurrentProjectState(mockProjects[0]);
+        localStorage.setItem('currentProjectId', mockProjects[0].id);
       }
     } catch (error) {
       console.error('Error fetching projects:', error);

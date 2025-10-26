@@ -66,36 +66,38 @@ export default function OrganizationOnboardingPage() {
       // Créer l'organisation dans Firestore
       const orgId = `org_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
-      // Préparer les données en évitant les valeurs undefined
+      // Préparer les données conformes au type Organization
       const orgData: any = {
         id: orgId,
         name: data.name,
-        type: data.type,
+        legalForm: 'association', // Type légal
+        address: data.address || '',
+        email: user.email || '',
+        phone: '',
+        vatEnabled: false,
+        ownerId: user.id, // Champ ajouté dans le type Organization
+        memberIds: [user.id], // Liste des membres
+        subscriptionTier: 'free',
         settings: {
-          currency: 'EUR',
           fiscalYearStart: '01-01',
-          requireApproval: true,
-          allowHypotheticalBudget: true,
-        },
-        members: [
-          {
-            userId: user.id,
-            role: 'owner',
-            joinedAt: new Date(),
+          accountingPlan: 'associatif',
+          currency: 'EUR',
+          notifications: {
+            emailEnabled: true,
+            budgetAlertThreshold: 80,
+            reminderDaysBeforeDue: 7,
+            notifyAllCAOnNewEntry: false,
+            notifyTreasurerOnly: true,
           },
-        ],
-        subscription: {
-          plan: 'free',
-          status: 'active',
         },
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       };
 
       // Ajouter les champs optionnels seulement s'ils existent
-      if (data.siret) orgData.siret = data.siret;
-      if (data.address) orgData.address = data.address;
-      if (data.description) orgData.description = data.description;
+      if (data.siret) {
+        orgData.siret = data.siret;
+      }
       
       await setDoc(doc(db, 'organizations', orgId), orgData);
 
@@ -105,8 +107,10 @@ export default function OrganizationOnboardingPage() {
         {
           organizations: [
             {
-              id: orgId,
-              role: 'owner',
+              organizationId: orgId,
+              role: 'admin',
+              permissions: ['read', 'write', 'delete', 'manage'],
+              joinedAt: serverTimestamp(),
             },
           ],
         },

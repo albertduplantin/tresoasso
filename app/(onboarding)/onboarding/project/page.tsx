@@ -68,26 +68,33 @@ export default function ProjectOnboardingPage() {
       // Créer le projet dans Firestore
       const projectId = `proj_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
-      // Préparer les données en évitant les valeurs undefined
+      // Date de fin par défaut : 1 an après la date de début
+      const startDate = new Date(data.startDate);
+      const defaultEndDate = new Date(startDate);
+      defaultEndDate.setFullYear(startDate.getFullYear() + 1);
+      
+      // Préparer les données conformes au type Project
       const projectData: any = {
         id: projectId,
         organizationId: orgId,
         name: data.name,
-        startDate: new Date(data.startDate),
-        budget: data.budget || 0,
+        fiscalYear: startDate.getFullYear(), // Année fiscale basée sur la date de début
+        startDate: startDate,
+        endDate: data.endDate ? new Date(data.endDate) : defaultEndDate,
         status: 'active',
         visibility: {
-          isPublic: false,
-          allowedUsers: [user.id],
+          visibleToAll: false,
+          visibleToUserIds: [user.id],
         },
-        createdBy: user.id,
+        budgetCategories: [], // Catégories de budget vides initialement
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       };
 
-      // Ajouter les champs optionnels seulement s'ils existent
-      if (data.endDate) projectData.endDate = new Date(data.endDate);
-      if (data.description) projectData.description = data.description;
+      // Ajouter la description si elle existe
+      if (data.description) {
+        projectData.description = data.description;
+      }
       
       await setDoc(doc(db, 'projects', projectId), projectData);
 

@@ -11,6 +11,8 @@ export interface Organization {
   vatEnabled: boolean;
   vatRate?: number;
   logoUrl?: string;
+  ownerId: string; // ID du propriétaire principal
+  memberIds?: string[]; // IDs des membres (pour requêtes rapides)
   subscriptionTier: 'free' | 'starter' | 'premium' | 'enterprise';
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
