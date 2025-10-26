@@ -28,7 +28,11 @@ export function useAuth() {
         // Récupérer les données utilisateur depuis Firestore
         const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
         if (userDoc.exists()) {
-          setUser(userDoc.data() as User);
+          // Ajouter l'id qui n'est pas dans les données du document
+          setUser({
+            ...userDoc.data(),
+            id: firebaseUser.uid,
+          } as User);
         }
       } else {
         setUser(null);
