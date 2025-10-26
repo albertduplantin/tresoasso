@@ -66,13 +66,11 @@ export default function OrganizationOnboardingPage() {
       // Créer l'organisation dans Firestore
       const orgId = `org_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
-      await setDoc(doc(db, 'organizations', orgId), {
+      // Préparer les données en évitant les valeurs undefined
+      const orgData: any = {
         id: orgId,
         name: data.name,
         type: data.type,
-        siret: data.siret || null,
-        address: data.address || null,
-        description: data.description || null,
         settings: {
           currency: 'EUR',
           fiscalYearStart: '01-01',
@@ -92,7 +90,14 @@ export default function OrganizationOnboardingPage() {
         },
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-      });
+      };
+
+      // Ajouter les champs optionnels seulement s'ils existent
+      if (data.siret) orgData.siret = data.siret;
+      if (data.address) orgData.address = data.address;
+      if (data.description) orgData.description = data.description;
+      
+      await setDoc(doc(db, 'organizations', orgId), orgData);
 
       // Mettre à jour l'utilisateur avec l'organisation
       await setDoc(

@@ -68,14 +68,13 @@ export default function ProjectOnboardingPage() {
       // Créer le projet dans Firestore
       const projectId = `proj_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
-      await setDoc(doc(db, 'projects', projectId), {
+      // Préparer les données en évitant les valeurs undefined
+      const projectData: any = {
         id: projectId,
         organizationId: orgId,
         name: data.name,
         startDate: new Date(data.startDate),
-        endDate: data.endDate ? new Date(data.endDate) : null,
         budget: data.budget || 0,
-        description: data.description || null,
         status: 'active',
         visibility: {
           isPublic: false,
@@ -84,7 +83,13 @@ export default function ProjectOnboardingPage() {
         createdBy: user.id,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-      });
+      };
+
+      // Ajouter les champs optionnels seulement s'ils existent
+      if (data.endDate) projectData.endDate = new Date(data.endDate);
+      if (data.description) projectData.description = data.description;
+      
+      await setDoc(doc(db, 'projects', projectId), projectData);
 
       toast.success('Premier projet créé avec succès ! 🎉');
       
