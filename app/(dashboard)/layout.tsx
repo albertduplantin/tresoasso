@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import { Sidebar } from '@/components/layouts/sidebar';
 import { useAuthContext } from '@/components/providers/auth-provider';
+import { OrganizationProvider } from '@/lib/contexts/organization-context';
 import { Button } from '@/components/ui/button';
 
 export default function DashboardLayout({
@@ -35,9 +36,10 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen flex">
-      {/* Sidebar Desktop */}
-      <Sidebar className="w-64 hidden lg:block" />
+    <OrganizationProvider>
+      <div className="min-h-screen flex">
+        {/* Sidebar Desktop */}
+        <Sidebar className="w-64 hidden lg:block" />
 
       {/* Mobile Menu Button */}
       <div className="lg:hidden fixed top-4 left-4 z-50">
@@ -82,7 +84,8 @@ export default function DashboardLayout({
           {children}
         </div>
       </main>
-    </div>
+      </div>
+    </OrganizationProvider>
   );
 }
 

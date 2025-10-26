@@ -38,3 +38,9 @@ export const getAllDefaultCategories = (): Omit<BudgetCategory, 'id' | 'budgeted
   return [...DEFAULT_EXPENSE_CATEGORIES, ...DEFAULT_REVENUE_CATEGORIES];
 };
 
+// Pour compatibilité avec le code existant
+export const BUDGET_CATEGORIES = [
+  ...DEFAULT_EXPENSE_CATEGORIES.map((cat, idx) => ({ ...cat, id: `exp_${idx + 1}` })),
+  ...DEFAULT_REVENUE_CATEGORIES.map((cat, idx) => ({ ...cat, id: `rev_${idx + 1}` })),
+];
+
