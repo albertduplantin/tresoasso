@@ -62,10 +62,10 @@ export function useAuth() {
     await updateProfile(result.user, { displayName });
     
     // Créer le document utilisateur dans Firestore
-    const newUser: Omit<User, 'id'> = {
+    const newUser: any = {
+      id: result.user.uid,
       email: result.user.email!,
       displayName,
-      photoURL: result.user.photoURL || undefined,
       role: 'viewer', // Rôle par défaut
       organizations: [],
       preferences: {
@@ -74,14 +74,16 @@ export function useAuth() {
         emailNotifications: true,
         pushNotifications: false,
       },
-      createdAt: serverTimestamp() as any,
-      lastLoginAt: serverTimestamp() as any,
+      createdAt: serverTimestamp(),
+      lastLoginAt: serverTimestamp(),
     };
     
-    await setDoc(doc(db, 'users', result.user.uid), {
-      ...newUser,
-      id: result.user.uid,
-    });
+    // Ajouter photoURL seulement s'il existe
+    if (result.user.photoURL) {
+      newUser.photoURL = result.user.photoURL;
+    }
+    
+    await setDoc(doc(db, 'users', result.user.uid), newUser);
     
     return result;
   };
@@ -95,10 +97,10 @@ export function useAuth() {
     
     if (!userDoc.exists()) {
       // Créer le document utilisateur
-      const newUser: Omit<User, 'id'> = {
+      const newUser: any = {
+        id: result.user.uid,
         email: result.user.email!,
         displayName: result.user.displayName || 'Utilisateur',
-        photoURL: result.user.photoURL || undefined,
         role: 'viewer',
         organizations: [],
         preferences: {
@@ -107,14 +109,16 @@ export function useAuth() {
           emailNotifications: true,
           pushNotifications: false,
         },
-        createdAt: serverTimestamp() as any,
-        lastLoginAt: serverTimestamp() as any,
+        createdAt: serverTimestamp(),
+        lastLoginAt: serverTimestamp(),
       };
       
-      await setDoc(doc(db, 'users', result.user.uid), {
-        ...newUser,
-        id: result.user.uid,
-      });
+      // Ajouter photoURL seulement s'il existe
+      if (result.user.photoURL) {
+        newUser.photoURL = result.user.photoURL;
+      }
+      
+      await setDoc(doc(db, 'users', result.user.uid), newUser);
     } else {
       // Mettre à jour lastLoginAt
       await setDoc(
