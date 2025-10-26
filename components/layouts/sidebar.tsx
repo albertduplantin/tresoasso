@@ -18,6 +18,7 @@ import { useAuthContext } from '@/components/providers/auth-provider';
 
 interface SidebarProps {
   className?: string;
+  onNavigate?: () => void;
 }
 
 const navigation = [
@@ -58,7 +59,7 @@ const navigation = [
   },
 ];
 
-export function Sidebar({ className }: SidebarProps) {
+export function Sidebar({ className, onNavigate }: SidebarProps) {
   const pathname = usePathname();
   const { user, signOut } = useAuthContext();
 
@@ -66,7 +67,11 @@ export function Sidebar({ className }: SidebarProps) {
     <div className={cn('flex flex-col h-full bg-surface border-r', className)}>
       {/* Logo */}
       <div className="p-6 border-b">
-        <Link href="/dashboard" className="flex items-center space-x-2">
+        <Link 
+          href="/dashboard" 
+          className="flex items-center space-x-2"
+          onClick={onNavigate}
+        >
           <BarChart3 className="h-8 w-8 text-primary" />
           <span className="text-2xl font-bold">TrésoAsso</span>
         </Link>
@@ -82,6 +87,7 @@ export function Sidebar({ className }: SidebarProps) {
             <Link
               key={item.name}
               href={item.href}
+              onClick={onNavigate}
               className={cn(
                 'flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
                 isActive
