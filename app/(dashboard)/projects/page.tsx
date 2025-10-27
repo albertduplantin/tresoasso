@@ -145,8 +145,7 @@ export default function ProjectsPage() {
   };
 
   const handleProjectClick = (project: Project) => {
-    // TODO: Implémenter la navigation vers la page détaillée du projet
-    console.log('Navigate to project:', project.id);
+    router.push(`/projects/${project.id}`);
   };
 
   if (!currentOrganization) {

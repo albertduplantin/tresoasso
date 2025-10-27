@@ -81,6 +81,9 @@
   --color-warning: var(--warning);
   --color-error: var(--error);
   --color-info: var(--info);
+  --color-certain: var(--certain);
+  --color-probable: var(--probable);
+  --color-potential: var(--potential);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
 }
