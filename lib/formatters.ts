@@ -1,5 +1,6 @@
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { Timestamp } from 'firebase/firestore';
 
 export const formatCurrency = (amount: number, currency: string = 'EUR'): string => {
   return new Intl.NumberFormat('fr-FR', {
@@ -12,8 +13,19 @@ export const formatNumber = (num: number): string => {
   return new Intl.NumberFormat('fr-FR').format(num);
 };
 
-export const formatDate = (date: Date | number, formatStr: string = 'dd/MM/yyyy'): string => {
-  return format(date, formatStr, { locale: fr });
+export const formatDate = (date: Date | number | Timestamp | any, formatStr: string = 'dd/MM/yyyy'): string => {
+  // Convertir Timestamp Firestore en Date si nécessaire
+  let dateToFormat: Date | number = date;
+  
+  if (date && typeof date === 'object' && 'toDate' in date) {
+    // C'est un Timestamp Firestore
+    dateToFormat = date.toDate();
+  } else if (typeof date === 'string') {
+    // C'est une string, la convertir en Date
+    dateToFormat = new Date(date);
+  }
+  
+  return format(dateToFormat, formatStr, { locale: fr });
 };
 
 export const formatDateTime = (date: Date | number): string => {
