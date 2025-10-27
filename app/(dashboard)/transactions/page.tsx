@@ -70,8 +70,17 @@ export default function TransactionsPage() {
 
   const handleEdit = (transaction: Transaction) => {
     // Transformer la transaction pour le formulaire
+    // Convertir les Timestamps en Date pour le formulaire
     const formData: any = {
       ...transaction,
+      transactionDate: transaction.transactionDate instanceof Date 
+        ? transaction.transactionDate 
+        : (transaction.transactionDate as any).toDate?.() || new Date(transaction.transactionDate as any),
+      dueDate: transaction.dueDate 
+        ? (transaction.dueDate instanceof Date 
+            ? transaction.dueDate 
+            : (transaction.dueDate as any).toDate?.() || new Date(transaction.dueDate as any))
+        : undefined,
       counterpartyName: transaction.counterparty.name,
       counterpartyType: transaction.counterparty.type,
       counterpartyEmail: transaction.counterparty.contactEmail,
