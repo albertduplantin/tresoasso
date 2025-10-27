@@ -32,7 +32,7 @@ import { formatCurrency } from '@/lib/formatters';
 const projectEditSchema = z.object({
   name: z.string().min(3, 'Le nom doit contenir au moins 3 caractères'),
   description: z.string().optional(),
-  fiscalYear: z.string().regex(/^\d{4}$/, 'Format: AAAA'),
+  fiscalYear: z.union([z.string(), z.number()]).transform(val => typeof val === 'number' ? val.toString() : val).pipe(z.string().regex(/^\d{4}$/, 'Format: AAAA')),
   status: z.enum(['draft', 'active', 'closed', 'archived']),
   budgetCategories: z.array(z.object({
     id: z.string(),
@@ -77,7 +77,7 @@ export function ProjectEditDialog({
     defaultValues: {
       name: project.name,
       description: project.description || '',
-      fiscalYear: project.fiscalYear,
+      fiscalYear: project.fiscalYear.toString(),
       status: project.status,
       budgetCategories: project.budgetCategories || [],
     },
@@ -90,7 +90,7 @@ export function ProjectEditDialog({
     reset({
       name: project.name,
       description: project.description || '',
-      fiscalYear: project.fiscalYear,
+      fiscalYear: project.fiscalYear.toString(),
       status: project.status,
       budgetCategories: project.budgetCategories || [],
     });
@@ -140,7 +140,7 @@ export function ProjectEditDialog({
       await onSave({
         name: data.name,
         description: data.description,
-        fiscalYear: data.fiscalYear,
+        fiscalYear: parseInt(data.fiscalYear, 10),
         status: data.status,
         budgetCategories: budgetCategories,
       });
