@@ -4,9 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, Wallet, AlertCircle, FileText } from 'lucide-react';
 import { useTransactions } from '@/lib/hooks/useTransactions';
 import { useOrganization } from '@/lib/contexts/organization-context';
-import { formatCurrency } from '@/lib/formatters';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { formatCurrency, formatDate } from '@/lib/formatters';
 
 export default function DashboardPage() {
   const { transactions, loading, getStats } = useTransactions();
@@ -229,7 +227,7 @@ export default function DashboardPage() {
                   <div className="flex-1">
                     <p className="font-medium">{transaction.counterparty.name}</p>
                     <p className="text-sm text-text-secondary">
-                      {transaction.description} • {format(new Date(transaction.transactionDate), 'dd/MM/yyyy', { locale: fr })}
+                      {transaction.description} • {formatDate(transaction.transactionDate)}
                     </p>
                   </div>
                   <div className="text-right">
