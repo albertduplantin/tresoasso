@@ -16,6 +16,8 @@ import {
   FileText,
   BarChart3,
   Calendar,
+  FileSpreadsheet,
+  Printer,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,8 +25,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useOrganization } from '@/lib/contexts/organization-context';
 import { useTransactions } from '@/lib/hooks/useTransactions';
+import { useProjects } from '@/lib/hooks/useProjects';
 import { formatCurrency, formatDate } from '@/lib/formatters';
 import { StatusBadge, CertaintyBadge } from '@/components/transactions/status-badge';
+import { ProjectEditDialog } from '@/components/projects/project-edit-dialog';
+import { exportProjectToCSV, exportProjectReport } from '@/lib/utils/export';
 import { BUDGET_CATEGORIES } from '@/constants';
 
 export default function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -33,7 +38,10 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const router = useRouter();
   const { projects, currentOrganization } = useOrganization();
   const { transactions, loading } = useTransactions();
+  const { updateProject } = useProjects(currentOrganization?.id || null);
   const [activeTab, setActiveTab] = useState('overview');
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [exportMenuOpen, setExportMenuOpen] = useState(false);
 
   // Trouver le projet
   const project = projects.find(p => p.id === projectId);
@@ -107,6 +115,16 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
     return Array.from(stats.values()).sort((a, b) => b.total - a.total);
   }, [projectTransactions, project]);
+
+  const handleSaveProject = async (data: Partial<typeof project>) => {
+    try {
+      await updateProject(projectId, data);
+      // Le projet sera automatiquement mis à jour via le context
+    } catch (error) {
+      console.error('Error updating project:', error);
+      throw error;
+    }
+  };
 
   if (!project) {
     return (
@@ -185,14 +203,54 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         </div>
 
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => setEditDialogOpen(true)}>
             <Edit className="mr-2 h-4 w-4" />
             Modifier
           </Button>
-          <Button variant="outline" size="sm">
-            <Download className="mr-2 h-4 w-4" />
-            Exporter
-          </Button>
+          
+          {/* Menu Export */}
+          <div className="relative">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setExportMenuOpen(!exportMenuOpen)}
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Exporter
+            </Button>
+            
+            {exportMenuOpen && (
+              <>
+                <div 
+                  className="fixed inset-0 z-10" 
+                  onClick={() => setExportMenuOpen(false)}
+                />
+                <div className="absolute right-0 mt-2 w-48 bg-card-background border border-border rounded-lg shadow-lg z-20">
+                  <button
+                    className="w-full px-4 py-2 text-left text-sm hover:bg-surface flex items-center gap-2 rounded-t-lg"
+                    onClick={() => {
+                      exportProjectToCSV(project, projectTransactions);
+                      setExportMenuOpen(false);
+                    }}
+                  >
+                    <FileSpreadsheet className="h-4 w-4" />
+                    Exporter en CSV
+                  </button>
+                  <button
+                    className="w-full px-4 py-2 text-left text-sm hover:bg-surface flex items-center gap-2 rounded-b-lg"
+                    onClick={() => {
+                      exportProjectReport(project, projectTransactions);
+                      setExportMenuOpen(false);
+                    }}
+                  >
+                    <Printer className="h-4 w-4" />
+                    Imprimer le rapport
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+          
           <Button variant="ghost" size="sm">
             <MoreVertical className="h-4 w-4" />
           </Button>
@@ -609,6 +667,16 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Dialog de modification */}
+      {project && (
+        <ProjectEditDialog
+          project={project}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          onSave={handleSaveProject}
+        />
+      )}
     </div>
   );
 }

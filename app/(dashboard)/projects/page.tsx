@@ -29,7 +29,9 @@ import {
 } from '@/components/ui/select';
 import { useOrganization } from '@/lib/contexts/organization-context';
 import { useTransactions } from '@/lib/hooks/useTransactions';
+import { useProjects } from '@/lib/hooks/useProjects';
 import { formatCurrency, formatDate } from '@/lib/formatters';
+import { ProjectEditDialog } from '@/components/projects/project-edit-dialog';
 import { Project } from '@/types';
 
 type ProjectStats = {
@@ -45,9 +47,11 @@ type ProjectStats = {
 export default function ProjectsPage() {
   const router = useRouter();
   const { currentOrganization, projects, loading, refreshProjects } = useOrganization();
+  const { updateProject } = useProjects(currentOrganization?.id || null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'draft' | 'active' | 'closed' | 'archived'>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
 
   // Calculer les statistiques pour chaque projet
   const getProjectStats = (project: Project, transactions: any[]): ProjectStats => {
@@ -146,6 +150,17 @@ export default function ProjectsPage() {
 
   const handleProjectClick = (project: Project) => {
     router.push(`/projects/${project.id}`);
+  };
+
+  const handleSaveProject = async (data: Partial<Project>) => {
+    if (!editingProject) return;
+    try {
+      await updateProject(editingProject.id, data);
+      setEditingProject(null);
+    } catch (error) {
+      console.error('Error updating project:', error);
+      throw error;
+    }
   };
 
   if (!currentOrganization) {
@@ -423,7 +438,7 @@ export default function ProjectsPage() {
                       className="flex-1"
                       onClick={(e) => {
                         e.stopPropagation();
-                        console.log('Edit project:', project.id);
+                        setEditingProject(project);
                       }}
                     >
                       <Edit className="h-3 w-3 mr-1" />
@@ -445,6 +460,16 @@ export default function ProjectsPage() {
             );
           })}
         </div>
+      )}
+
+      {/* Dialog de modification */}
+      {editingProject && (
+        <ProjectEditDialog
+          project={editingProject}
+          open={!!editingProject}
+          onOpenChange={(open) => !open && setEditingProject(null)}
+          onSave={handleSaveProject}
+        />
       )}
     </div>
   );
