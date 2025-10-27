@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import { Sidebar } from '@/components/layouts/sidebar';
+import { DashboardHeader } from '@/components/layouts/header';
 import { useAuthContext } from '@/components/providers/auth-provider';
 import { OrganizationProvider } from '@/lib/contexts/organization-context';
 import { Button } from '@/components/ui/button';
@@ -80,6 +81,7 @@ export default function DashboardLayout({
 
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
+        <DashboardHeader />
         <div className="container mx-auto px-4 py-8 lg:py-8 pt-16 lg:pt-8">
           {children}
         </div>

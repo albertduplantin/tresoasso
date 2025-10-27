@@ -259,30 +259,17 @@ export default function TransactionsPage() {
       )}
 
       {/* Dialog Formulaire */}
-      <Dialog open={formOpen} onOpenChange={setFormOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {editingTransaction ? 'Modifier la transaction' : 'Nouvelle transaction'}
-            </DialogTitle>
-            <DialogDescription>
-              {editingTransaction
-                ? 'Modifiez les informations de la transaction'
-                : 'Ajoutez une nouvelle recette ou dépense'}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-text-secondary">
-              Formulaire de transaction en cours de développement...
-            </p>
-            <div className="flex gap-2">
-              <Button onClick={() => { setFormOpen(false); setEditingTransaction(null); }}>
-                Fermer
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <TransactionForm
+        open={formOpen}
+        onOpenChange={(open) => {
+          setFormOpen(open);
+          if (!open) setEditingTransaction(null);
+        }}
+        onSubmit={handleSubmit}
+        categories={BUDGET_CATEGORIES}
+        initialData={editingTransaction || undefined}
+        mode={editingTransaction ? 'edit' : 'create'}
+      />
     </div>
   );
 }

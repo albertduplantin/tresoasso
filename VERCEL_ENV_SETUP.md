@@ -54,3 +54,4 @@ vercel --prod
 Ces clés Firebase sont publiques (NEXT_PUBLIC_*) car elles sont exposées côté client. 
 La sécurité est assurée par les règles Firestore et Storage déjà configurées.
 
+

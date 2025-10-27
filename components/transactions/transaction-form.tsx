@@ -58,9 +58,11 @@ export function TransactionForm({
     defaultValues: initialData || {
       type: 'expense',
       certainty: 'confirmed',
-      transactionDate: new Date(),
+      transactionDate: new Date().toISOString().split('T')[0], // Format YYYY-MM-DD pour input date
       counterpartyType: 'supplier',
+      status: 'pending',
       tags: [],
+      amount: 0,
     },
   });
 
@@ -125,7 +127,9 @@ export function TransactionForm({
                 type="number"
                 step="0.01"
                 placeholder="0.00"
-                {...register('amount', { valueAsNumber: true })}
+                {...register('amount', { 
+                  setValueAs: (v) => v === '' ? undefined : parseFloat(v) 
+                })}
               />
               {errors.amount && (
                 <p className="text-sm text-error">{String(errors.amount.message)}</p>
@@ -206,7 +210,8 @@ export function TransactionForm({
               <Input
                 id="transactionDate"
                 type="date"
-                {...register('transactionDate', { valueAsDate: true })}
+                defaultValue={new Date().toISOString().split('T')[0]}
+                {...register('transactionDate')}
               />
             </div>
 
@@ -215,7 +220,7 @@ export function TransactionForm({
               <Input
                 id="dueDate"
                 type="date"
-                {...register('dueDate', { valueAsDate: true })}
+                {...register('dueDate')}
               />
             </div>
           </div>

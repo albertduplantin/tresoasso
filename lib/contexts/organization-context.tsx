@@ -37,14 +37,9 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      // TODO: Corriger la requête une fois que la structure de données sera définie
-      // Pour l'instant, utiliser des données mockées
       console.log('Loading organizations for user:', user.id);
       
-      // Mock data temporaire
-      const mockOrgs: Organization[] = [];
-      
-      /* Requête réelle à implémenter une fois la structure définie :
+      // Requête réelle : récupérer les organisations où l'utilisateur est propriétaire
       const orgsQuery = query(
         collection(db, 'organizations'),
         where('ownerId', '==', user.id)
@@ -55,14 +50,14 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
         id: doc.id, 
         ...doc.data() 
       } as Organization));
-      */
       
-      setOrganizations(mockOrgs);
+      console.log(`Found ${orgsData.length} organization(s):`, orgsData);
+      setOrganizations(orgsData);
 
       // Si pas d'organisation courante mais qu'il y en a au moins une, sélectionner la première
-      if (!currentOrganization && mockOrgs.length > 0) {
-        setCurrentOrganizationState(mockOrgs[0]);
-        localStorage.setItem('currentOrganizationId', mockOrgs[0].id);
+      if (!currentOrganization && orgsData.length > 0) {
+        setCurrentOrganizationState(orgsData[0]);
+        localStorage.setItem('currentOrganizationId', orgsData[0].id);
       }
     } catch (error) {
       console.error('Error fetching organizations:', error);
@@ -79,10 +74,7 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
     try {
       console.log('Loading projects for organization:', currentOrganization.id);
       
-      // Mock data temporaire
-      const mockProjects: Project[] = [];
-      
-      /* Requête réelle à implémenter :
+      // Requête réelle : récupérer les projets de l'organisation
       const projectsQuery = query(
         collection(db, 'projects'),
         where('organizationId', '==', currentOrganization.id)
@@ -93,14 +85,14 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
         id: doc.id, 
         ...doc.data() 
       } as Project));
-      */
       
-      setProjects(mockProjects);
+      console.log(`Found ${projectsData.length} project(s):`, projectsData);
+      setProjects(projectsData);
 
       // Si pas de projet courant mais qu'il y en a au moins un, sélectionner le premier
-      if (!currentProject && mockProjects.length > 0) {
-        setCurrentProjectState(mockProjects[0]);
-        localStorage.setItem('currentProjectId', mockProjects[0].id);
+      if (!currentProject && projectsData.length > 0) {
+        setCurrentProjectState(projectsData[0]);
+        localStorage.setItem('currentProjectId', projectsData[0].id);
       }
     } catch (error) {
       console.error('Error fetching projects:', error);

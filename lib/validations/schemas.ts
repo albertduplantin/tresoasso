@@ -8,14 +8,27 @@ export const transactionSchema = z.object({
   categoryId: z.string().min(1, 'La catégorie est requise'),
   status: z.string(),
   certainty: z.enum(['confirmed', 'probable', 'potential']),
-  transactionDate: z.date(),
-  dueDate: z.date().optional(),
+  transactionDate: z.union([z.date(), z.string()]).transform(val => {
+    if (typeof val === 'string' && val.trim() !== '') {
+      return new Date(val);
+    }
+    return val instanceof Date ? val : new Date();
+  }),
+  dueDate: z.union([z.date(), z.string(), z.undefined()]).transform(val => {
+    if (!val || (typeof val === 'string' && val.trim() === '')) {
+      return undefined;
+    }
+    return typeof val === 'string' ? new Date(val) : val;
+  }).optional(),
   counterpartyName: z.string().min(2, 'Le nom du partenaire est requis'),
   counterpartyType: z.enum(['supplier', 'sponsor', 'grant', 'individual', 'other']),
-  counterpartyEmail: z.string().email('Email invalide').optional().or(z.literal('')),
+  counterpartyEmail: z.string().optional().refine(
+    (val) => !val || val === '' || z.string().email().safeParse(val).success,
+    { message: 'Email invalide' }
+  ),
   counterpartyPhone: z.string().optional(),
   counterpartySiret: z.string().optional(),
-  assignedTo: z.string().min(1, 'Responsable requis'),
+  assignedTo: z.string().optional(), // Sera rempli automatiquement
   tags: z.array(z.string()).default([]),
   notes: z.string().optional(),
   invoiceNumber: z.string().optional(),

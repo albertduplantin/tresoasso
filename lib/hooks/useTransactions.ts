@@ -88,39 +88,68 @@ export function useTransactions() {
       throw new Error('Organization, project, or user not found');
     }
 
+    // Convertir les dates string/Date en Timestamp Firestore
+    const convertToTimestamp = (date: any) => {
+      if (!date) return undefined;
+      if (typeof date === 'string') return Timestamp.fromDate(new Date(date));
+      if (date instanceof Date) return Timestamp.fromDate(date);
+      return date;
+    };
+
+    // Construire l'objet counterparty en omettant les champs undefined/vides
+    const counterparty: any = {
+      name: data.counterpartyName,
+      type: data.counterpartyType || 'other',
+    };
+    
+    // Ajouter les champs optionnels seulement s'ils ont une valeur
+    if (data.counterpartyEmail && data.counterpartyEmail.trim() !== '') {
+      counterparty.contactEmail = data.counterpartyEmail.trim();
+    }
+    if (data.counterpartyPhone && data.counterpartyPhone.trim() !== '') {
+      counterparty.contactPhone = data.counterpartyPhone.trim();
+    }
+
     // Transformer les champs du formulaire en structure Transaction
     const transactionData: any = {
       organizationId: currentOrganization.id,
       projectId: currentProject.id,
       type: data.type,
-      amount: data.amount,
+      amount: Number(data.amount),
       description: data.description,
       categoryId: data.categoryId,
       status: data.status,
       certainty: data.certainty,
-      transactionDate: data.transactionDate,
-      counterparty: {
-        name: data.counterpartyName,
-        type: data.counterpartyType || 'other',
-        contactEmail: data.counterpartyEmail || undefined,
-        contactPhone: data.counterpartyPhone || undefined,
-      },
+      transactionDate: convertToTimestamp(data.transactionDate),
+      counterparty: counterparty,
       createdBy: user.id,
       assignedTo: data.assignedTo || user.id,
       documents: data.documents || [],
       tags: data.tags || [],
-      notes: data.notes || undefined,
-      invoiceNumber: data.invoiceNumber || undefined,
-      paymentMethod: data.paymentMethod || undefined,
-      vatAmount: data.vatAmount || undefined,
-      vatRate: data.vatRate || undefined,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };
 
+    // Ajouter les champs optionnels seulement s'ils ont une valeur
+    if (data.notes && data.notes.trim() !== '') {
+      transactionData.notes = data.notes.trim();
+    }
+    if (data.invoiceNumber && data.invoiceNumber.trim() !== '') {
+      transactionData.invoiceNumber = data.invoiceNumber.trim();
+    }
+    if (data.paymentMethod) {
+      transactionData.paymentMethod = data.paymentMethod;
+    }
+    if (data.vatAmount && Number(data.vatAmount) > 0) {
+      transactionData.vatAmount = Number(data.vatAmount);
+    }
+    if (data.vatRate && Number(data.vatRate) > 0) {
+      transactionData.vatRate = Number(data.vatRate);
+    }
+
     // Ajouter les champs optionnels seulement s'ils existent
-    if (data.dueDate) transactionData.dueDate = data.dueDate;
-    if (data.invoiceDate) transactionData.invoiceDate = data.invoiceDate;
+    if (data.dueDate) transactionData.dueDate = convertToTimestamp(data.dueDate);
+    if (data.invoiceDate) transactionData.invoiceDate = convertToTimestamp(data.invoiceDate);
 
     const docRef = await addDoc(collection(db, 'transactions'), transactionData);
     return docRef.id;

@@ -204,3 +204,4 @@ Remplacer le mock data dans `organization-context.tsx` par les vraies requêtes 
 
 **Action immédiate** : Configurer les 7 variables d'environnement sur Vercel !
 
+

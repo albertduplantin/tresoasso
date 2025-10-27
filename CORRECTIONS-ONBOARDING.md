@@ -314,3 +314,4 @@ import { Toaster } from 'sonner';
 
 **Toutes les corrections sont terminées ! Le flow d'onboarding est maintenant fonctionnel.** 🎉
 
+
