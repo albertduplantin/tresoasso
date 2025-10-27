@@ -32,7 +32,7 @@ import { formatCurrency } from '@/lib/formatters';
 const projectEditSchema = z.object({
   name: z.string().min(3, 'Le nom doit contenir au moins 3 caractères'),
   description: z.string().optional(),
-  fiscalYear: z.union([z.string(), z.number()]).transform(val => typeof val === 'number' ? val.toString() : val).pipe(z.string().regex(/^\d{4}$/, 'Format: AAAA')),
+  fiscalYear: z.string().regex(/^\d{4}$/, 'Format: AAAA'),
   status: z.enum(['draft', 'active', 'closed', 'archived']),
   budgetCategories: z.array(z.object({
     id: z.string(),
