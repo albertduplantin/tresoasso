@@ -276,7 +276,7 @@ export default function TransactionsPage() {
         }}
         onSubmit={handleSubmit}
         categories={BUDGET_CATEGORIES}
-        initialData={editingTransaction || undefined}
+        initialData={editingTransaction as any}
         mode={editingTransaction ? 'edit' : 'create'}
       />
     </div>
