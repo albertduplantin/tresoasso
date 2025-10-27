@@ -30,6 +30,7 @@ import { formatCurrency, formatDate } from '@/lib/formatters';
 import { StatusBadge, CertaintyBadge } from '@/components/transactions/status-badge';
 import { ProjectEditDialog } from '@/components/projects/project-edit-dialog';
 import { exportProjectToCSV, exportProjectReport } from '@/lib/utils/export';
+import { Project } from '@/types';
 import { BUDGET_CATEGORIES } from '@/constants';
 
 export default function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -116,7 +117,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     return Array.from(stats.values()).sort((a, b) => b.total - a.total);
   }, [projectTransactions, project]);
 
-  const handleSaveProject = async (data: Partial<typeof project>) => {
+  const handleSaveProject = async (data: Partial<Project>) => {
     try {
       await updateProject(projectId, data);
       // Le projet sera automatiquement mis à jour via le context
